@@ -1,0 +1,14 @@
+# app
+sqlalchemy
+flask==2.2.2
+mysqlclient
+redis
+flask-jwt-extended
+Flask-Limiter
+requests
+
+# dev-test
+pytest
+pytest-icdiff
+coverage
+mypy

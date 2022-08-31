@@ -1,0 +1,65 @@
+version: "3.8"
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      cache:
+        condition: service_started
+    stdin_open: true
+    tty: true
+    networks:
+      - backendnetwork
+      - proxy
+    env_file:
+      - ./.env
+    environment:
+#      VIRTUAL_HOST: portal.test
+      PYTHONDONTWRITEBYTECODE: 1
+      FLASK_APP: "src/app.py"
+      FLASK_ENV: "development"
+      FLASK_DEBUG: "True"
+      FLASK_RUN_PORT: 8000
+  mysql:
+    image: mysql:8.0
+    security_opt:
+      - seccomp:unconfined
+    volumes:
+      - ./mysql:/var/lib/mysql
+    restart: on-failure
+    env_file:
+      - ./.env
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    networks:
+      - backendnetwork
+    ports:
+      - "3306:3306"
+  cache:
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server --save 20 1 --loglevel warning --requirepass abc123
+    volumes:
+      - cache:/data
+    networks:
+      - backendnetwork
+networks:
+  backendnetwork:
+    driver: bridge
+  proxy:
+    external: true
+
+volumes:
+  cache:
+    driver: local
