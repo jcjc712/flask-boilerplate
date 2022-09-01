@@ -13,16 +13,22 @@ services:
         condition: service_healthy
       cache:
         condition: service_started
-    stdin_open: true
-    tty: true
     networks:
       - backendnetwork
-      - proxy
-    env_file:
-      - ./.env
     environment:
-#      VIRTUAL_HOST: portal.test
       PYTHONDONTWRITEBYTECODE: 1
+      DB_HOST: "${DB_HOST}"
+      DB_PORT: "${DB_PORT}"
+      API_HOST: "${API_HOST}"
+      REDIS_HOST: "${REDIS_HOST}"
+      REDIS_PORT: "${REDIS_PORT}"
+      REDIS_PASSWORD: "${REDIS_PASSWORD}"
+      SECRET_KEY: "${SECRET_KEY}"
+      JWT_SECRET_KEY: "${JWT_SECRET_KEY}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      MYSQL_DATABASE: "${MYSQL_DATABASE}"
+      MYSQL_USER: "${MYSQL_USER}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
       FLASK_APP: "src/app.py"
       FLASK_ENV: "development"
       FLASK_DEBUG: "True"
@@ -34,8 +40,10 @@ services:
     volumes:
       - ./mysql:/var/lib/mysql
     restart: on-failure
-    env_file:
-      - ./.env
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      MYSQL_DATABASE: "${MYSQL_DATABASE}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
     healthcheck:
       test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
       timeout: 20s
@@ -57,8 +65,6 @@ services:
 networks:
   backendnetwork:
     driver: bridge
-  proxy:
-    external: true
 
 volumes:
   cache:

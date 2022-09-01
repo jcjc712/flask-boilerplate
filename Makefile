@@ -2,10 +2,10 @@ build:
 	docker-compose build
 
 up:
-	docker network create proxy & docker-compose up
+	docker-compose up
 
 test:
-	docker-compose exec app coverage report -m
+	docker-compose exec app coverage run -m pytest && docker-compose exec app coverage report -m
 
 logs:
 	docker-compose logs app | tail -100
